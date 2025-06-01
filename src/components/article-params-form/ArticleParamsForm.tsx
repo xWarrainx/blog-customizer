@@ -5,7 +5,6 @@ import { Text } from 'src/ui/text';
 import { Separator } from 'src/ui/separator';
 import { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
-
 import styles from './ArticleParamsForm.module.scss';
 import {
 	fontFamilyOptions,
