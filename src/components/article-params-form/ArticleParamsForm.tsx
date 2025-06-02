@@ -3,8 +3,10 @@ import { Button } from 'src/ui/button';
 import { Select } from 'src/ui/select';
 import { Text } from 'src/ui/text';
 import { Separator } from 'src/ui/separator';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { clsx } from 'clsx';
+import { useClose } from 'src/hooks/useClose';
+import { RadioGroup } from 'src/ui/radio-group';
 
 import styles from './ArticleParamsForm.module.scss';
 import {
@@ -27,12 +29,19 @@ export const ArticleParamsForm = ({
 	currentArticleState,
 	setCurrentArticleState,
 }: ArticleParamsFormProps) => {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 	const rootRef = useRef<HTMLDivElement>(null);
 
 	// Локальное состояние формы (отдельно от состояния статьи)
 	const [formState, setFormState] =
 		useState<ArticleStateType>(currentArticleState);
+
+	// Используем кастомный хук useClose
+	useClose({
+		isOpen: isMenuOpen,
+		onClose: () => setIsMenuOpen(false),
+		rootRef: rootRef,
+	});
 
 	// Обработчик изменений в форме
 	const handleChange = (key: keyof ArticleStateType, value: OptionType) => {
@@ -55,28 +64,18 @@ export const ArticleParamsForm = ({
 		setCurrentArticleState(defaultArticleState);
 	};
 
-	// Закрытие формы при клике вне ее области
-	useEffect(() => {
-		const handleClick = (e: MouseEvent) => {
-			if (
-				isOpen &&
-				rootRef.current &&
-				!rootRef.current.contains(e.target as Node)
-			) {
-				setIsOpen(false);
-			}
-		};
-
-		document.addEventListener('mousedown', handleClick);
-		return () => document.removeEventListener('mousedown', handleClick);
-	}, [isOpen, rootRef]);
-
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
+			<ArrowButton
+				isOpen={isMenuOpen}
+				onClick={() => setIsMenuOpen(!isMenuOpen)}
+			/>
 			<aside
 				ref={rootRef}
-				className={clsx(styles.container, isOpen && styles.container_open)}>
+				className={clsx(
+					styles.container,
+					isMenuOpen ? styles.container_open : null
+				)}>
 				<form
 					className={styles.form}
 					onSubmit={handleApply}
@@ -92,7 +91,8 @@ export const ArticleParamsForm = ({
 						title='Шрифт'
 					/>
 
-					<Select
+					<RadioGroup
+						name='radio'
 						selected={formState.fontSizeOption}
 						options={fontSizeOptions}
 						onChange={(option) => handleChange('fontSizeOption', option)}
