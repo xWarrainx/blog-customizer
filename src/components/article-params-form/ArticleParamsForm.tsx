@@ -72,10 +72,9 @@ export const ArticleParamsForm = ({
 			/>
 			<aside
 				ref={rootRef}
-				className={clsx(
-					styles.container,
-					isMenuOpen ? styles.container_open : null
-				)}>
+				className={clsx(styles.container, {
+					[styles.container_open]: isMenuOpen,
+				})}>
 				<form
 					className={styles.form}
 					onSubmit={handleApply}
